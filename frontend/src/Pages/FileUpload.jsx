@@ -1,28 +1,37 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import '../Style/FileUploadStyle.css';
+
 
 
 const FileUpload = () => {
     const [selectedFile, setSelectedFile] = useState(null);
+
+    const api = axios.create({
+        baseURL: '/api',
+        withCredentials: true
+      })
+
     
+    const handleFileChange = (e) => {
+        setSelectedFile(e.target.files[0]);
+    };
+
     const handleSubmit = (e) => {
         e.preventDefault();
         const formData = new FormData();
         formData.append('file', selectedFile);
 
         // Placeholder for the upload endpoint
-        fetch('YOUR_UPLOAD_ENDPOINT', {
-            method: 'POST',
-            body: formData,
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log('Success:', data);
-        })
-        .catch((error) => {
-            console.error('Error:', error);
-        });
+        api.post('/upload', formData)
+            .then(response => {
+                console.log('Success:', response.data);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
     }
+
 
     return (
         <>
@@ -30,8 +39,24 @@ const FileUpload = () => {
 
                 <form onSubmit={handleSubmit} className="mb-3 d-flex justify-content-center">
                     <label htmlFor="formFile" className="form-label">Upload Your File</label>
-                    {selectedFile && <p className='file-name'>Selected file: {selectedFile.name}</p>}                
-                    <input className="form-control" type="file" id="formFile" />
+                    {selectedFile && (
+                        <button 
+                            type="button" 
+                            className="btn btn-outline-secondary mb-3"
+                            style={{ cursor: 'default' }}
+                        >
+                            {selectedFile.name}
+                        </button>
+                    )}                
+
+                    <input 
+                        className="form-control" 
+                        type="file" 
+                        id="formFile" 
+                        onChange={handleFileChange} 
+                    />
+                    
+
                 </form>
             </div>
         </>
